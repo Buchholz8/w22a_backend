@@ -22,14 +22,18 @@ def post_candy():
     else:
         return make_response(jsonify("sorry, something went wrong"))
 
-app.delete("/api/candy")
-def delete_candy(user_id_input):
-    results = dbhelpers.run_procedures("CALL delete_candy(?)", [user_id_input])
-    if(type(results) == list):
-        return make_response(jsonify("Candy delted successfully", 200))
-    else:
-        return make_response(jsonify("Sorry, Something Went Wrong"), 500)
+@app.delete("/api/candy")
+def delete_candy():
+    try:
+        user_id_input = int(request.args.get("user_id"))
+        results = dbhelpers.run_procedures("CALL delete_candy(?)", [user_id_input])
 
+        if isinstance(results, list):
+            return make_response(jsonify("Candy deleted successfully"), 200)
+        else:
+            return make_response(jsonify("Sorry, something went wrong"), 500)
+    except Exception as e:
+        return make_response(jsonify("Error: " + str(e)), 500)
 
 if(dbcreds.production_mode == True):
     print("Runing in production mode")
